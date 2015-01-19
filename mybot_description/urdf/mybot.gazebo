@@ -1,0 +1,10 @@
+<robot>
+<gazebo reference="chassis">
+  <material>Gazebo/Orange</material>
+</gazebo>
+<gazebo>
+  <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+    <robotNamespace>/mybot</robotNamespace>
+  </plugin>
+</gazebo>
+</robot>
