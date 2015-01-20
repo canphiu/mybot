@@ -53,8 +53,53 @@
   </inertial>
 </link>
 
+<joint name="fixed" type="fixed">
+  <parent link="chassis"/>
+  <child link="caster_wheel"/>
+</joint>
+
+<link name="caster_wheel">
+  <collision>
+    <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius-chassisHeight+wheelRadius}" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="${casterRadius}"/>
+    </geometry>
+  </collision>
+  
+  <visual>
+    <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius-chassisHeight+wheelRadius}" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="${casterRadius}"/>
+    </geometry>
+    <material name="red"/>
+  </visual>
+
+  <inertial>
+    <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius-chassisHeight+wheelRadius}" rpy="0 0 0"/>
+    <mass value="${casterMass}"/>
+    <sphere_inertia m="${casterMass}" r="${casterRadius}"/>
+  </inertial>
+</link>
+
 <wheel lr="left" tY="1"/>
 <wheel lr="right" tY="-1"/>
+
+<include>
+  <uri>model://hokuyo</uri>
+  <pose>0.2 0 0.2 0 0 0</pose>
+</include>
+
+<joint name="hokuyo_joint" type="revolute">
+  <child>hokuyo::link</child>
+  <parent>chassis</parent>
+  <axis>
+    <xyz>0 0 1</xyz>
+    <limit>
+      <upper>0</upper>
+      <lower>0</lower>
+    </limit>
+  </axis>
+</joint>
 
 </robot>
 
