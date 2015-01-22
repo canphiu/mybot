@@ -5,16 +5,15 @@
 
 <xacro:property name="PI" value="3.1415926535897931"/>
 
-<xacro:property name="chassisHeight" value="0.1"/>
+<xacro:property name="chassisHeight" value="0.1" />
 <xacro:property name="chassisLength" value="0.4"/>
 <xacro:property name="chassisWidth" value="0.2"/>
 <xacro:property name="chassisMass" value="50"/>
 
-<xacro:property name="casterRadius" value="0.05"/>
-<xacro:property name="casterMass" value="5"/>
+<xacro:property name="laserPosHeight" value="0.15"/>
 
-<xacro:property name="wheelWidth" value="0.05"/>
-<xacro:property name="wheelRadius" value="0.1"/>
+<xacro:property name="wheelWidth" value="0.02"/>
+<xacro:property name="wheelRadius" value="0.05"/>
 <xacro:property name="wheelPos" value="0.2"/>
 <xacro:property name="wheelMass" value="5"/>
 
@@ -25,81 +24,70 @@
 <xacro:include filename="$(find mybot_description)/urdf/materials.xacro" />
 <xacro:include filename="$(find mybot_description)/urdf/macros.xacro" />
  
-<link name="footprint" />
+<link name="base_link" />
 
 <joint name="base_joint" type="fixed">
-  <parent link="footprint"/>
+  <parent link="base_link"/>
   <child link="chassis"/>
+  <origin xyz="${-chassisLength/2} 0 0" rpy="0 0 0" />
+  <axis xyz="1 0 0" rpy="0 0 0" />  
 </joint>
 
 <link name='chassis'>
   <collision> 
-    <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/> 
+    <origin xyz="0 0 ${wheelRadius+chassisHeight/2}" rpy="0 0 0"/> 
     <geometry> 
       <box size="${chassisLength} ${chassisWidth} ${chassisHeight}"/> 
     </geometry> 
   </collision>
   <visual> 
-    <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/> 
+    <origin xyz="0 0 ${wheelRadius+chassisHeight/2}" rpy="0 0 0"/> 
     <geometry> 
       <box size="${chassisLength} ${chassisWidth} ${chassisHeight}"/> 
     </geometry> 
     <material name="orange"/>
   </visual>
   <inertial> 
-    <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/> 
+    <origin xyz="0 0 ${wheelRadius+chassisHeight/2}" rpy="0 0 0"/> 
     <mass value="${chassisMass}"/> 
     <box_inertia m="${chassisMass}" x="${chassisLength}" y="${chassisWidth}" z="${chassisHeight}"/>
   </inertial>
 </link>
 
-<joint name="fixed" type="fixed">
-  <parent link="chassis"/>
-  <child link="caster_wheel"/>
+<wheel lr="left_front" tX="0.6" tY="1"/>
+<wheel lr="right_front" tX="0.6" tY="-1"/>
+<wheel lr="left_back" tX="-0.6" tY="1"/>
+<wheel lr="right_back" tX="-0.6" tY="-1"/>
+
+<joint name="hokuyo_joint" type="fixed">
+  <axis xyz="0 1 0" />
+  <origin xyz="0 0 ${laserPosHeight}" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="hokuyo_link"/>
 </joint>
 
-<link name="caster_wheel">
+<!-- Hokuyo Laser -->
+<link name="hokuyo_link">
   <collision>
-    <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius-chassisHeight+wheelRadius}" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
-      <sphere radius="${casterRadius}"/>
+  <box size="0.1 0.1 0.1"/>
     </geometry>
   </collision>
-  
+
   <visual>
-    <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius-chassisHeight+wheelRadius}" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
-      <sphere radius="${casterRadius}"/>
+      <mesh filename="/home/tdvu/.gazebo/models/hokuyo/meshes/hokuyo.dae"/>
     </geometry>
-    <material name="red"/>
   </visual>
 
   <inertial>
-    <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius-chassisHeight+wheelRadius}" rpy="0 0 0"/>
-    <mass value="${casterMass}"/>
-    <sphere_inertia m="${casterMass}" r="${casterRadius}"/>
+    <mass value="1e-5" />
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
   </inertial>
-</link>
-
-<wheel lr="left" tY="1"/>
-<wheel lr="right" tY="-1"/>
-
-<include>
-  <uri>model://hokuyo</uri>
-  <pose>0.2 0 0.2 0 0 0</pose>
-</include>
-
-<joint name="hokuyo_joint" type="revolute">
-  <child>hokuyo::link</child>
-  <parent>chassis</parent>
-  <axis>
-    <xyz>0 0 1</xyz>
-    <limit>
-      <upper>0</upper>
-      <lower>0</lower>
-    </limit>
-  </axis>
-</joint>
+</link>  
 
 </robot>
 
